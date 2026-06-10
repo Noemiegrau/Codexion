@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/15 14:49:28 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/06 15:19:41 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/10 18:29:37 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 # define ARGS_H
 
 # include <pthread.h>
+
+# define FIFO	0
+# define EDF	1
 
 typedef struct s_data
 {
@@ -24,26 +27,58 @@ typedef struct s_data
 	int				time_to_refactor;
 	int				number_of_compiles_required;
 	int				dongle_cooldown;
-	int				scheduler; // 0 = FIFO, 1 = EDF par exemple
+	int				scheduler;
 }					t_data;
+
+typedef struct s_heap_node
+{
+	int				coder_id; // quel coder attend
+	long			key; // sa priorité (numéro d'arrivée en FIFO, deadline en EDF)
+}					t_heap_node;
+
+typedef struct s_heap
+{
+	t_heap_node		*nodes;
+	int				size;
+	int				capacity;
+}					t_heap;
 
 typedef struct s_dongle_data
 {
-	int					dongle_id;
-	pthread_mutex_t		mutex; // verrou du dongle
-	pthread_cond_t		available; // pour la file d'attente (FIFO/EDF)
-	int					in_use; // 0 = libre, 1 = pris
-}						t_dongle_data;
+	int				dongle_id;
+	pthread_mutex_t	mutex;
+	pthread_cond_t	available;
+	int				in_use;
+	long			release_time;
+	t_heap			wait_queue;
+}					t_dongle_data;
+
+typedef struct s_sim	t_sim;
 
 typedef struct s_coder_data
 {
 	int				id_number;
-	pthread_t		thread; // identifiant du thread
-	t_dongle_data	*left_dongle; // pointeur vers le dongle gauche
-	t_dongle_data	*right_dongle; // pointeur vers le dongle droit
-	long			last_compile; // timestamp du dernier compile
-	int				compile_count; // nombre de compiles effectues
-	t_data			*data; // acces aux parametres globaux
+	pthread_t		thread;
+	t_dongle_data	*left_dongle;
+	t_dongle_data	*right_dongle;
+	long			last_compile;
+	pthread_mutex_t	last_compile_mutex;
+	int				compile_count;
+	t_sim			*sim;
 }					t_coder_data;
+
+struct s_sim
+{
+	t_data			params;
+	t_coder_data	*coders;
+	t_dongle_data	*dongles;
+	long			start_time;
+	int				stop;
+	pthread_mutex_t	stop_mutex;
+	pthread_mutex_t	print_mutex;
+	pthread_t		monitor_thread;
+	long			seq;
+	pthread_mutex_t	seq_mutex;
+};
 
 #endif
