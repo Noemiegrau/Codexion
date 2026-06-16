@@ -2,8 +2,6 @@
 
 # Codexion
 
-> Master the race for resources before the deadline masters you
-
 ## Description
 
 Codexion is a concurrency simulation inspired by the classic Dining Philosophers problem. Multiple coders sit in a circular co-working hub and compete for a limited number of USB dongles in order to compile their quantum code.

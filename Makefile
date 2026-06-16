@@ -1,11 +1,27 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: noemi <noemi@student.42.fr>                +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2026/06/13 19:28:59 by noemi             #+#    #+#              #
+#    Updated: 2026/06/13 19:29:00 by noemi            ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME	= codexion
 
 CC		= cc
 CFLAGS	= -Wall -Wextra -Werror -pthread
 
 SRCS	= main.c \
+		  init.c \
 		  parsing_args.c \
-		  utils.c
+		  heap.c \
+		  utils.c \
+		  coder.c \
+		  monitor.c
 
 OBJS	= $(SRCS:.c=.o)
 

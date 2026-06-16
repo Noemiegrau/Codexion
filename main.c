@@ -6,43 +6,83 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/15 14:49:37 by noemi             #+#    #+#             */
-/*   Updated: 2026/05/16 20:07:26 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/13 15:00:00 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include <unistd.h>
+#include "args.h"
 #include <stdio.h>
-#include <pthread.h>
+#include <stdlib.h>
 
-void	*coder_life(void *arg)
+/* lance le thread monitor puis un thread par coder */
+static int	launch_threads(t_sim *sim)
 {
-	// affiche "Coder X est en vie"
-	printf("Coder X est en vie");
-	// arg c'est le numero du coder, mais c'est un void*
-	// comment tu le convertis en int ?
-	int(arg);
-	return (NULL);
+	int	i;
+
+	if (pthread_create(&sim->monitor_thread, NULL, monitor, sim))
+		return (0);
+	i = 0;
+	while (i < sim->params.number_of_coders)
+	{
+		if (pthread_create(&sim->coders[i].thread, NULL,
+				coder_life, &sim->coders[i]))
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+/* attend la fin de tous les threads puis libere toute la memoire */
+static void	cleanup(t_sim *sim)
+{
+	int	i;
+	int	n;
+
+	n = sim->params.number_of_coders;
+	pthread_join(sim->monitor_thread, NULL); // attend que le monitor termine
+	i = 0;
+	while (i < n)
+	{
+		pthread_join(sim->coders[i].thread, NULL); // attend chaque coder
+		i++;
+	}
+	i = 0;
+	while (i < n)
+	{
+		pthread_mutex_destroy(&sim->dongles[i].mutex);
+		pthread_cond_destroy(&sim->dongles[i].available);
+		heap_destroy(&sim->dongles[i].wait_queue);
+		pthread_mutex_destroy(&sim->coders[i].last_compile_mutex);
+		i++;
+	}
+	free(sim->dongles);
+	free(sim->coders);
+	pthread_mutex_destroy(&sim->stop_mutex);
+	pthread_mutex_destroy(&sim->print_mutex);
+	pthread_mutex_destroy(&sim->seq_mutex);
 }
 
 int	main(int argc, char **argv)
 {
-	// int i;
-	// char *s1;
-	// char *s2;
+	t_sim	sim;
 
-	// i = 0;
-	// s1 = argv[1];
-	// s2 = argv[2];
-	(void) argv;
-	if (argc != 9)
+	if (argc != 9) // le sujet exige exactement 8 arguments
 	{
-		write(1, "\n", 1);
-		return (0);
+		fprintf(stderr, "Error: wrong number of arguments\n");
+		return (1);
 	}
-
-	// parsing_args() ?
-
-	write(1, "This is a test.", 15);
+	if (!parse_args(&sim.params, argv)) // valide et remplit t_data
+		return (1);
+	if (!init_sim(&sim)) // alloue coders, dongles, init mutexes
+	{
+		fprintf(stderr, "Error: initialization failed\n");
+		return (1);
+	}
+	if (!launch_threads(&sim))
+	{
+		fprintf(stderr, "Error: thread creation failed\n");
+		return (1);
+	}
+	cleanup(&sim); // join + free tout
 	return (0);
 }
