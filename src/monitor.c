@@ -35,7 +35,7 @@ static int	check_burnout(t_sim *sim)
 }
 
 /* retourne 1 si tous les coders ont compile assez de fois */
-static int	check_all_compiled(t_sim *sim)
+int	check_all_compiled(t_sim *sim)
 {
 	int	i;
 	int	required;
@@ -52,7 +52,7 @@ static int	check_all_compiled(t_sim *sim)
 }
 
 /* log burnout si besoin, set stop=1, reveille tous les threads en attente */
-static void	stop_simulation(t_sim *sim, int burned_id)
+void	stop_simulation(t_sim *sim, int burned_id)
 {
 	int	i;
 

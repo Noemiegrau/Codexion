@@ -85,6 +85,8 @@ int			parse_args(t_data *data, char **argv);
 int			init_sim(t_sim *sim);
 void		*coder_routine(void *arg);
 void		*monitor(void *arg);
+int			check_all_compiled(t_sim *sim);
+void		stop_simulation(t_sim *sim, int burned_id);
 
 int			heap_init(t_heap *tab, int capacity);
 void		heap_push(t_heap *tab, int coder_id, long key);

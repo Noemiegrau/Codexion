@@ -87,6 +87,8 @@ static void	do_cycle(t_coder_data *coder, t_dongle_data *first,
 	release_dongle(coder, first);
 	release_dongle(coder, second);
 	coder->compile_count++;
+	if (check_all_compiled(coder->sim))
+		stop_simulation(coder->sim, 0);
 	if (coder->sim->stop)
 		return ;
 	log_state(coder->sim, coder->id_number, "is debugging");
