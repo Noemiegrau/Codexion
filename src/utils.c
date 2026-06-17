@@ -39,17 +39,3 @@ void	log_state(t_sim *sim, int id, char *msg)
 	pthread_mutex_unlock(&sim->print_mutex);
 }
 
-/* remplit ts avec heure actuelle + 1ms pour pthread_cond_timedwait */
-void	set_wait_ts(struct timespec *ts)
-{
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	ts->tv_sec = tv.tv_sec;
-	ts->tv_nsec = (tv.tv_usec + 1000) * 1000;
-	if (ts->tv_nsec >= 1000000000)
-	{
-		ts->tv_sec++;
-		ts->tv_nsec -= 1000000000;
-	}
-}

@@ -43,8 +43,7 @@ static void	release_dongle(t_coder_data *coder, t_dongle_data *dongle)
 /* attend son tour puis prend le dongle selon scheduler et cooldown */
 static void	acquire_dongle(t_coder_data *coder, t_dongle_data *dongle)
 {
-	struct timespec	ts;
-	int				cooldown;
+	int	cooldown;
 
 	cooldown = coder->sim->params.dongle_cooldown;
 	pthread_mutex_lock(&dongle->mutex);
@@ -53,8 +52,7 @@ static void	acquire_dongle(t_coder_data *coder, t_dongle_data *dongle)
 		|| get_time_ms(coder->sim) < dongle->release_time + cooldown
 		|| heap_peek(&dongle->wait_queue).coder_id != coder->id_number))
 	{
-		set_wait_ts(&ts);
-		pthread_cond_timedwait(&dongle->available, &dongle->mutex, &ts);
+		pthread_cond_wait(&dongle->available, &dongle->mutex);
 	}
 	if (!is_stopped(coder->sim))
 	{

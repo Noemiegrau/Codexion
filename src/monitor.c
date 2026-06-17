@@ -75,6 +75,21 @@ void	stop_simulation(t_sim *sim, int burned_id)
 	}
 }
 
+/* reveille tous les coders en attente sur un dongle */
+static void	broadcast_all_dongles(t_sim *sim)
+{
+	int	i;
+
+	i = 0;
+	while (i < sim->params.number_of_coders)
+	{
+		pthread_mutex_lock(&sim->dongles[i].mutex);
+		pthread_cond_broadcast(&sim->dongles[i].available);
+		pthread_mutex_unlock(&sim->dongles[i].mutex);
+		i++;
+	}
+}
+
 /* thread monitor : detecte burnout et fin de simulation toutes les 1ms */
 void	*monitor(void *arg)
 {
@@ -84,7 +99,8 @@ void	*monitor(void *arg)
 	sim = (t_sim *)arg;
 	while (1)
 	{
-		usleep(1000); // verifie toutes les 1ms -> burnout detecte en < 10ms
+		usleep(1000);
+		broadcast_all_dongles(sim);
 		burned_id = check_burnout(sim);
 		if (burned_id)
 		{

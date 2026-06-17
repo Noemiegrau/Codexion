@@ -96,6 +96,5 @@ void		free_heap(t_heap *tab);
 long		get_time_ms(t_sim *sim);
 int			is_stopped(t_sim *sim);
 void		log_state(t_sim *sim, int id, char *msg);
-void		set_wait_ts(struct timespec *ts);
 
 #endif
