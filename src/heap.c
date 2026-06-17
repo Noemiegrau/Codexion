@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/12 14:13:43 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/12 15:11:18 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/17 15:32:42 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ t_heap_node	heap_peek(t_heap *tab)
 	return (tab->nodes[0]);
 }
 
-void	heap_destroy(t_heap *tab)
+void	free_heap(t_heap *tab)
 {
 	free(tab->nodes);
 	tab->nodes = NULL;

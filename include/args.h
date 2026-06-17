@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/15 14:49:28 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/13 14:50:59 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/17 15:32:42 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,14 +83,14 @@ struct s_sim
 
 int			parse_args(t_data *data, char **argv);
 int			init_sim(t_sim *sim);
-void		*coder_life(void *arg);
+void		*coder_routine(void *arg);
 void		*monitor(void *arg);
 
 int			heap_init(t_heap *tab, int capacity);
 void		heap_push(t_heap *tab, int coder_id, long key);
 t_heap_node	heap_pop(t_heap *tab);
 t_heap_node	heap_peek(t_heap *tab);
-void		heap_destroy(t_heap *tab);
+void		free_heap(t_heap *tab);
 long		get_time_ms(t_sim *sim);
 void		log_state(t_sim *sim, int id, char *msg);
 void		set_wait_ts(struct timespec *ts);

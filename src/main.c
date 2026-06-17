@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/15 14:49:37 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/13 15:00:00 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/17 15:32:42 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,17 @@
 #include <stdlib.h>
 
 /* lance le thread monitor puis un thread par coder */
-static int	launch_threads(t_sim *sim)
+static int	start_threads(t_sim *sim)
 {
 	int	i;
 
+	i = 0;
 	if (pthread_create(&sim->monitor_thread, NULL, monitor, sim))
 		return (0);
-	i = 0;
 	while (i < sim->params.number_of_coders)
 	{
 		if (pthread_create(&sim->coders[i].thread, NULL,
-				coder_life, &sim->coders[i]))
+				coder_routine, &sim->coders[i]))
 			return (0);
 		i++;
 	}
@@ -33,7 +33,7 @@ static int	launch_threads(t_sim *sim)
 }
 
 /* attend la fin de tous les threads puis libere toute la memoire */
-static void	cleanup(t_sim *sim)
+static void	free_sim(t_sim *sim)
 {
 	int	i;
 	int	n;
@@ -51,7 +51,7 @@ static void	cleanup(t_sim *sim)
 	{
 		pthread_mutex_destroy(&sim->dongles[i].mutex);
 		pthread_cond_destroy(&sim->dongles[i].available);
-		heap_destroy(&sim->dongles[i].wait_queue);
+		free_heap(&sim->dongles[i].wait_queue);
 		pthread_mutex_destroy(&sim->coders[i].last_compile_mutex);
 		i++;
 	}
@@ -78,11 +78,11 @@ int	main(int argc, char **argv)
 		fprintf(stderr, "Error: initialization failed\n");
 		return (1);
 	}
-	if (!launch_threads(&sim))
+	if (!start_threads(&sim))
 	{
 		fprintf(stderr, "Error: thread creation failed\n");
 		return (1);
 	}
-	cleanup(&sim); // join + free tout
+	free_sim(&sim); // join + free tout
 	return (0);
 }

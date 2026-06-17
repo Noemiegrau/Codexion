@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/13 19:00:00 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/14 19:17:26 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/17 15:28:50 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ static void	do_cycle(t_coder_data *coder, t_dongle_data *first,
 }
 
 /* point d'entree du thread : boucle compile->debug->refactor */
-void	*coder_life(void *arg)
+void	*coder_routine(void *arg)
 {
 	t_coder_data	*coder;
 	t_dongle_data	*first;
