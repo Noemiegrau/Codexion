@@ -22,6 +22,16 @@ long	get_time_ms(t_sim *sim)
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000 - sim->start_time);
 }
 
+int	is_stopped(t_sim *sim)
+{
+	int	val;
+
+	pthread_mutex_lock(&sim->stop_mutex);
+	val = sim->stop;
+	pthread_mutex_unlock(&sim->stop_mutex);
+	return (val);
+}
+
 void	log_state(t_sim *sim, int id, char *msg)
 {
 	pthread_mutex_lock(&sim->print_mutex); // si un autre thread est entrain d'afficher, on attend la fin

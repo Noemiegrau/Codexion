@@ -49,20 +49,20 @@ static void	acquire_dongle(t_coder_data *coder, t_dongle_data *dongle)
 	cooldown = coder->sim->params.dongle_cooldown;
 	pthread_mutex_lock(&dongle->mutex);
 	heap_push(&dongle->wait_queue, coder->id_number, get_dongle_key(coder));
-	while (!coder->sim->stop && (dongle->in_use
+	while (!is_stopped(coder->sim) && (dongle->in_use
 		|| get_time_ms(coder->sim) < dongle->release_time + cooldown
 		|| heap_peek(&dongle->wait_queue).coder_id != coder->id_number))
 	{
 		set_wait_ts(&ts);
 		pthread_cond_timedwait(&dongle->available, &dongle->mutex, &ts);
 	}
-	if (!coder->sim->stop)
+	if (!is_stopped(coder->sim))
 	{
 		heap_pop(&dongle->wait_queue);
 		dongle->in_use = 1;
 	}
 	pthread_mutex_unlock(&dongle->mutex);
-	if (!coder->sim->stop)
+	if (!is_stopped(coder->sim))
 		log_state(coder->sim, coder->id_number, "has taken a dongle");
 }
 
@@ -71,29 +71,31 @@ static void	do_cycle(t_coder_data *coder, t_dongle_data *first,
 	t_dongle_data *second)
 {
 	acquire_dongle(coder, first);
-	if (coder->sim->stop)
+	if (is_stopped(coder->sim))
 		return ;
 	acquire_dongle(coder, second);
-	if (coder->sim->stop)
+	if (is_stopped(coder->sim))
 	{
 		release_dongle(coder, first);
 		return ;
 	}
 	pthread_mutex_lock(&coder->last_compile_mutex);
-	coder->last_compile = get_time_ms(coder->sim); // reset deadline burnout
+	coder->last_compile = get_time_ms(coder->sim);
 	pthread_mutex_unlock(&coder->last_compile_mutex);
 	log_state(coder->sim, coder->id_number, "is compiling");
 	usleep(coder->sim->params.time_to_compile * 1000);
 	release_dongle(coder, first);
 	release_dongle(coder, second);
+	pthread_mutex_lock(&coder->last_compile_mutex);
 	coder->compile_count++;
+	pthread_mutex_unlock(&coder->last_compile_mutex);
 	if (check_all_compiled(coder->sim))
 		stop_simulation(coder->sim, 0);
-	if (coder->sim->stop)
+	if (is_stopped(coder->sim))
 		return ;
 	log_state(coder->sim, coder->id_number, "is debugging");
 	usleep(coder->sim->params.time_to_debug * 1000);
-	if (coder->sim->stop)
+	if (is_stopped(coder->sim))
 		return ;
 	log_state(coder->sim, coder->id_number, "is refactoring");
 	usleep(coder->sim->params.time_to_refactor * 1000);
@@ -107,9 +109,9 @@ void	*coder_routine(void *arg)
 	t_dongle_data	*second;
 
 	coder = (t_coder_data *)arg;
-	if (coder->left_dongle == coder->right_dongle) // cas 1 coder : ne peut pas compiler
+	if (coder->left_dongle == coder->right_dongle)
 	{
-		while (!coder->sim->stop)
+		while (!is_stopped(coder->sim))
 			usleep(1000);
 		return (NULL);
 	}
@@ -123,7 +125,7 @@ void	*coder_routine(void *arg)
 		first = coder->right_dongle;
 		second = coder->left_dongle;
 	}
-	while (!coder->sim->stop)
+	while (!is_stopped(coder->sim))
 		do_cycle(coder, first, second);
 	return (NULL);
 }

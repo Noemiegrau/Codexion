@@ -39,12 +39,16 @@ int	check_all_compiled(t_sim *sim)
 {
 	int	i;
 	int	required;
+	int	count;
 
 	required = sim->params.number_of_compiles_required;
 	i = 0;
 	while (i < sim->params.number_of_coders)
 	{
-		if (sim->coders[i].compile_count < required)
+		pthread_mutex_lock(&sim->coders[i].last_compile_mutex);
+		count = sim->coders[i].compile_count;
+		pthread_mutex_unlock(&sim->coders[i].last_compile_mutex);
+		if (count < required)
 			return (0);
 		i++;
 	}
@@ -92,7 +96,7 @@ void	*monitor(void *arg)
 			stop_simulation(sim, 0);
 			return (NULL);
 		}
-		if (sim->stop)
+		if (is_stopped(sim))
 			return (NULL);
 	}
 	return (NULL);

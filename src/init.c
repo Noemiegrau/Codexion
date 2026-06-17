@@ -29,7 +29,7 @@ static int	init_dongles(t_sim *sim)
 	{
 		sim->dongles[i].dongle_id = i;
 		sim->dongles[i].in_use = 0;
-		sim->dongles[i].release_time = 0; // disponible des le debut
+		sim->dongles[i].release_time = -(long)sim->params.dongle_cooldown;
 		pthread_mutex_init(&sim->dongles[i].mutex, NULL);
 		pthread_cond_init(&sim->dongles[i].available, NULL); // salle reveil coder pr dongle
 		if (!heap_init(&sim->dongles[i].wait_queue, n)) // file d'attente FIFO/EDF
