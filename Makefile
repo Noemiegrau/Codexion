@@ -13,15 +13,17 @@
 NAME	= codexion
 
 CC		= cc
-CFLAGS	= -Wall -Wextra -Werror -pthread
+CFLAGS	= -Wall -Wextra -Werror -pthread -I include
 
-SRCS	= main.c \
-		  init.c \
-		  parsing_args.c \
-		  heap.c \
-		  utils.c \
-		  coder.c \
-		  monitor.c
+SRC_DIR	= src
+
+SRCS	= $(SRC_DIR)/main.c \
+		  $(SRC_DIR)/init.c \
+		  $(SRC_DIR)/parsing_args.c \
+		  $(SRC_DIR)/heap.c \
+		  $(SRC_DIR)/utils.c \
+		  $(SRC_DIR)/coder.c \
+		  $(SRC_DIR)/monitor.c
 
 OBJS	= $(SRCS:.c=.o)
 
