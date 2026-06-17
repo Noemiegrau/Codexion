@@ -61,7 +61,7 @@ All 8 arguments are required. The program rejects anything invalid — negative 
 
 **`pthread_mutex_t`** appears in three roles: one per dongle (guards its state, release timestamp, and wait queue), one global print lock (keeps output clean), and one monitor lock (protects the shared stop flag).
 
-**`pthread_cond_t`** — each dongle carries a condition variable. Threads that cannot acquire a dongle immediately go to sleep on it. When any dongle is released, `pthread_cond_broadcast` wakes all sleepers; each one re-evaluates its position in the queue and goes back to sleep if it is not yet its turn. `pthread_cond_timedwait` is used throughout so threads never block indefinitely — they wake up periodically to check whether the simulation has ended.
+**`pthread_cond_t`** — each dongle carries a condition variable. Threads that cannot acquire a dongle immediately go to sleep on it using `pthread_cond_wait`. The monitor thread wakes all sleepers every millisecond via `pthread_cond_broadcast`; each one re-evaluates its position in the queue and goes back to sleep if it is not yet its turn. The stop flag broadcast in `stop_simulation` also uses this mechanism to unblock any thread sleeping on a dongle.
 
 **Priority queue (min-heap)** — each dongle maintains its own custom min-heap for the wait queue. The sort key is arrival timestamp in `fifo` mode and `last_compile_start + time_to_burnout` in `edf` mode. The heap is implemented from scratch — no standard library container is used.
 
