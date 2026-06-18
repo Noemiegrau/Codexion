@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* lance le thread monitor puis un thread par coder */
 static int	start_threads(t_sim *sim)
 {
 	int	i;
@@ -32,18 +31,17 @@ static int	start_threads(t_sim *sim)
 	return (1);
 }
 
-/* attend la fin de tous les threads puis libere toute la memoire */
 static void	free_sim(t_sim *sim)
 {
 	int	i;
 	int	n;
 
 	n = sim->params.number_of_coders;
-	pthread_join(sim->monitor_thread, NULL); // attend que le monitor termine
+	pthread_join(sim->monitor_thread, NULL);
 	i = 0;
 	while (i < n)
 	{
-		pthread_join(sim->coders[i].thread, NULL); // attend chaque coder
+		pthread_join(sim->coders[i].thread, NULL);
 		i++;
 	}
 	i = 0;
@@ -66,14 +64,14 @@ int	main(int argc, char **argv)
 {
 	t_sim	sim;
 
-	if (argc != 9) // le sujet exige exactement 8 arguments
+	if (argc != 9)
 	{
 		fprintf(stderr, "Error: wrong number of arguments\n");
 		return (1);
 	}
-	if (!parse_args(&sim.params, argv)) // valide et remplit t_data
+	if (!parse_args(&sim.params, argv))
 		return (1);
-	if (!init_sim(&sim)) // alloue coders, dongles, init mutexes
+	if (!init_sim(&sim))
 	{
 		fprintf(stderr, "Error: initialization failed\n");
 		return (1);
@@ -83,6 +81,6 @@ int	main(int argc, char **argv)
 		fprintf(stderr, "Error: thread creation failed\n");
 		return (1);
 	}
-	free_sim(&sim); // join + free tout
+	free_sim(&sim);
 	return (0);
 }

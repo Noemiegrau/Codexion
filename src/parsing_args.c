@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/15 14:50:30 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/10 19:33:05 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/18 17:05:31 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static int	is_positive_int(char *str)
 	return (1);
 }
 
-static int	check_scheduler(char *str, t_data *data)
+static int	assign_scheduler(char *str, t_data *data)
 {
 	if (strcmp(str, "fifo") == 0)
 		data->scheduler = FIFO;
@@ -65,7 +65,7 @@ int	parse_args(t_data *data, char **argv)
 	data->time_to_refactor = atoi(argv[5]);
 	data->number_of_compiles_required = atoi(argv[6]);
 	data->dongle_cooldown = atoi(argv[7]);
-	if (!check_scheduler(argv[8], data))
+	if (!assign_scheduler(argv[8], data))
 	{
 		fprintf(stderr, "Error: scheduler must be 'fifo' or 'edf'\n");
 		return (0);

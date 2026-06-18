@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/15 14:49:48 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/13 15:48:16 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/18 16:57:57 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ long	get_time_ms(t_sim *sim)
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000 - sim->start_time);
 }
 
-int	is_stopped(t_sim *sim)
+int	check_sim_state(t_sim *sim)
 {
 	int	val;
 
@@ -32,9 +32,9 @@ int	is_stopped(t_sim *sim)
 	return (val);
 }
 
-void	log_state(t_sim *sim, int id, char *msg)
+void	print_manager(t_sim *sim, int id, char *msg)
 {
-	pthread_mutex_lock(&sim->print_mutex); // si un autre thread est entrain d'afficher, on attend la fin
+	pthread_mutex_lock(&sim->print_mutex);
 	printf("%ld %d %s\n", get_time_ms(sim), id, msg);
 	pthread_mutex_unlock(&sim->print_mutex);
 }

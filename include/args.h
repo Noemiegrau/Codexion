@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/15 14:49:28 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/17 15:32:42 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/18 16:57:57 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,15 +32,15 @@ typedef struct s_data
 
 typedef struct s_heap_node
 {
-	int				coder_id; // quel coder attend
-	long			key; // sa priorité (numéro d'arrivée en FIFO, deadline en EDF)
+	int				coder_id;
+	long			key;
 }					t_heap_node;
 
 typedef struct s_heap
 {
-	t_heap_node		*nodes; // le tableau de noeuds (alloué dynamiquement)
-	int				size; // combien de noeuds il y a actuellement
-	int				capacity; // taille max du tableau
+	t_heap_node		*nodes;
+	int				size;
+	int				capacity;
 }					t_heap;
 
 typedef struct s_dongle_data
@@ -49,8 +49,8 @@ typedef struct s_dongle_data
 	pthread_mutex_t	mutex;
 	pthread_cond_t	available;
 	int				in_use;
-	long			release_time; // timestamp (en ms) du moment où le dongle a été relâché
-	t_heap			wait_queue; // la file d'attente des coders qui veulent ce dongle
+	long			release_time;
+	t_heap			wait_queue;
 }					t_dongle_data;
 
 typedef struct s_sim	t_sim;
@@ -62,9 +62,9 @@ typedef struct s_coder_data
 	t_dongle_data	*left_dongle;
 	t_dongle_data	*right_dongle;
 	long			last_compile;
-	pthread_mutex_t	last_compile_mutex; // protege last_compile
+	pthread_mutex_t	last_compile_mutex;
 	int				compile_count;
-	t_sim			*sim; // remplace t_data *data
+	t_sim			*sim;
 }					t_coder_data;
 
 struct s_sim
@@ -94,7 +94,7 @@ t_heap_node	heap_pop(t_heap *tab);
 t_heap_node	heap_peek(t_heap *tab);
 void		free_heap(t_heap *tab);
 long		get_time_ms(t_sim *sim);
-int			is_stopped(t_sim *sim);
-void		log_state(t_sim *sim, int id, char *msg);
+int			check_sim_state(t_sim *sim);
+void		print_manager(t_sim *sim, int id, char *msg);
 
 #endif

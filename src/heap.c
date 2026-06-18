@@ -32,7 +32,6 @@ static void	heap_swap(t_heap_node *a, t_heap_node *b)
 	*b = temp;
 }
 
-/* retourne 1 si a est prioritaire sur b (cle plus petite, ou egal + id plus petit) */
 static int	sorting_keys(t_heap_node a, t_heap_node b)
 {
 	if (a.key < b.key)
@@ -40,7 +39,6 @@ static int	sorting_keys(t_heap_node a, t_heap_node b)
 	return (a.key == b.key && a.coder_id < b.coder_id);
 }
 
-/* fait descendre le noeud racine a sa bonne position */
 static void	heap_pop_utils(t_heap *tab)
 {
 	int	i;

@@ -6,14 +6,13 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/13 19:00:00 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/13 19:00:00 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/18 17:04:15 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "args.h"
 #include <unistd.h>
 
-/* verifie si un coder a depasse son temps limite - retourne son id ou 0 */
 static int	check_burnout(t_sim *sim)
 {
 	int		i;
@@ -34,7 +33,6 @@ static int	check_burnout(t_sim *sim)
 	return (0);
 }
 
-/* retourne 1 si tous les coders ont compile assez de fois */
 int	check_all_compiled(t_sim *sim)
 {
 	int	i;
@@ -55,13 +53,12 @@ int	check_all_compiled(t_sim *sim)
 	return (1);
 }
 
-/* log burnout si besoin, set stop=1, reveille tous les threads en attente */
 void	stop_simulation(t_sim *sim, int burned_id)
 {
 	int	i;
 
 	if (burned_id)
-		log_state(sim, burned_id, "burned out"); // log dans les 10ms
+		print_manager(sim, burned_id, "burned out");
 	pthread_mutex_lock(&sim->stop_mutex);
 	sim->stop = 1;
 	pthread_mutex_unlock(&sim->stop_mutex);
@@ -69,14 +66,13 @@ void	stop_simulation(t_sim *sim, int burned_id)
 	while (i < sim->params.number_of_coders)
 	{
 		pthread_mutex_lock(&sim->dongles[i].mutex);
-		pthread_cond_broadcast(&sim->dongles[i].available); // debloquer les waiters
+		pthread_cond_broadcast(&sim->dongles[i].available);
 		pthread_mutex_unlock(&sim->dongles[i].mutex);
 		i++;
 	}
 }
 
-/* reveille tous les coders en attente sur un dongle */
-static void	broadcast_all_dongles(t_sim *sim)
+static void	wake_waiting_coders(t_sim *sim)
 {
 	int	i;
 
@@ -90,7 +86,6 @@ static void	broadcast_all_dongles(t_sim *sim)
 	}
 }
 
-/* thread monitor : detecte burnout et fin de simulation toutes les 1ms */
 void	*monitor(void *arg)
 {
 	t_sim	*sim;
@@ -100,7 +95,7 @@ void	*monitor(void *arg)
 	while (1)
 	{
 		usleep(1000);
-		broadcast_all_dongles(sim);
+		wake_waiting_coders(sim);
 		burned_id = check_burnout(sim);
 		if (burned_id)
 		{
@@ -112,7 +107,7 @@ void	*monitor(void *arg)
 			stop_simulation(sim, 0);
 			return (NULL);
 		}
-		if (is_stopped(sim))
+		if (check_sim_state(sim))
 			return (NULL);
 	}
 	return (NULL);
