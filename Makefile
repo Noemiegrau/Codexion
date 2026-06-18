@@ -21,8 +21,10 @@ SRCS	= $(SRC_DIR)/main.c \
 		  $(SRC_DIR)/init.c \
 		  $(SRC_DIR)/parsing_args.c \
 		  $(SRC_DIR)/heap.c \
+		  $(SRC_DIR)/heap_utils.c \
 		  $(SRC_DIR)/utils.c \
 		  $(SRC_DIR)/coder.c \
+		  $(SRC_DIR)/coder_utils.c \
 		  $(SRC_DIR)/monitor.c
 
 OBJS	= $(SRCS:.c=.o)

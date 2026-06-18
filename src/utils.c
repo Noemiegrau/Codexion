@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/15 14:49:48 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/18 16:57:57 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/18 17:17:49 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,4 +38,3 @@ void	print_manager(t_sim *sim, int id, char *msg)
 	printf("%ld %d %s\n", get_time_ms(sim), id, msg);
 	pthread_mutex_unlock(&sim->print_mutex);
 }
-

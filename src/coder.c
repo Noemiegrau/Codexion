@@ -6,37 +6,13 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/13 19:00:00 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/18 16:57:57 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/18 17:18:44 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "args.h"
 #include <unistd.h>
 
-static long	get_priority(t_coder_data *coder)
-{
-	long	key;
-
-	if (coder->sim->params.scheduler == FIFO)
-	{
-		pthread_mutex_lock(&coder->sim->seq_mutex);
-		key = coder->sim->seq++;
-		pthread_mutex_unlock(&coder->sim->seq_mutex);
-	}
-	else
-		key = coder->last_compile
-			+ coder->sim->params.time_to_burnout;
-	return (key);
-}
-
-static void	release_dongle(t_coder_data *coder, t_dongle_data *dongle)
-{
-	pthread_mutex_lock(&dongle->mutex);
-	dongle->in_use = 0;
-	dongle->release_time = get_time_ms(coder->sim);
-	pthread_cond_broadcast(&dongle->available);
-	pthread_mutex_unlock(&dongle->mutex);
-}
 
 static void	get_dongle(t_coder_data *coder, t_dongle_data *dongle)
 {
@@ -46,8 +22,8 @@ static void	get_dongle(t_coder_data *coder, t_dongle_data *dongle)
 	pthread_mutex_lock(&dongle->mutex);
 	heap_push(&dongle->wait_queue, coder->id_number, get_priority(coder));
 	while (!check_sim_state(coder->sim) && (dongle->in_use
-		|| get_time_ms(coder->sim) < dongle->release_time + cooldown
-		|| heap_peek(&dongle->wait_queue).coder_id != coder->id_number))
+			|| get_time_ms(coder->sim) < dongle->release_time + cooldown
+			|| heap_peek(&dongle->wait_queue).coder_id != coder->id_number))
 	{
 		pthread_cond_wait(&dongle->available, &dongle->mutex);
 	}
@@ -59,6 +35,18 @@ static void	get_dongle(t_coder_data *coder, t_dongle_data *dongle)
 	pthread_mutex_unlock(&dongle->mutex);
 	if (!check_sim_state(coder->sim))
 		print_manager(coder->sim, coder->id_number, "has taken a dongle");
+}
+
+static void	do_debug_refactor(t_coder_data *coder)
+{
+	if (check_sim_state(coder->sim))
+		return ;
+	print_manager(coder->sim, coder->id_number, "is debugging");
+	usleep(coder->sim->params.time_to_debug * 1000);
+	if (check_sim_state(coder->sim))
+		return ;
+	print_manager(coder->sim, coder->id_number, "is refactoring");
+	usleep(coder->sim->params.time_to_refactor * 1000);
 }
 
 static void	start_routine(t_coder_data *coder, t_dongle_data *first,
@@ -85,14 +73,7 @@ static void	start_routine(t_coder_data *coder, t_dongle_data *first,
 	pthread_mutex_unlock(&coder->last_compile_mutex);
 	if (check_all_compiled(coder->sim))
 		stop_simulation(coder->sim, 0);
-	if (check_sim_state(coder->sim))
-		return ;
-	print_manager(coder->sim, coder->id_number, "is debugging");
-	usleep(coder->sim->params.time_to_debug * 1000);
-	if (check_sim_state(coder->sim))
-		return ;
-	print_manager(coder->sim, coder->id_number, "is refactoring");
-	usleep(coder->sim->params.time_to_refactor * 1000);
+	do_debug_refactor(coder);
 }
 
 void	*coder_routine(void *arg)
