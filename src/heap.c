@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/12 14:13:43 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/17 15:32:42 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/18 14:30:11 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static void	heap_swap(t_heap_node *a, t_heap_node *b)
 }
 
 /* retourne 1 si a est prioritaire sur b (cle plus petite, ou egal + id plus petit) */
-static int	node_precedes(t_heap_node a, t_heap_node b)
+static int	sorting_keys(t_heap_node a, t_heap_node b)
 {
 	if (a.key < b.key)
 		return (1);
@@ -55,10 +55,10 @@ static void	heap_pop_utils(t_heap *tab)
 		right = 2 * i + 2;
 		smallest = i;
 		if (left < tab->size
-			&& node_precedes(tab->nodes[left], tab->nodes[smallest]))
+			&& sorting_keys(tab->nodes[left], tab->nodes[smallest]))
 			smallest = left;
 		if (right < tab->size
-			&& node_precedes(tab->nodes[right], tab->nodes[smallest]))
+			&& sorting_keys(tab->nodes[right], tab->nodes[smallest]))
 			smallest = right;
 		if (smallest == i)
 			break ;
@@ -78,7 +78,7 @@ void	heap_push(t_heap *tab, int coder_id, long key)
 	i = tab->size;
 	tab->size++;
 	while (i > 0
-		&& node_precedes(tab->nodes[i], tab->nodes[(i - 1) / 2]))
+		&& sorting_keys(tab->nodes[i], tab->nodes[(i - 1) / 2]))
 	{
 		heap_swap(&tab->nodes[(i - 1) / 2], &tab->nodes[i]);
 		i = (i - 1) / 2;

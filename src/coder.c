@@ -6,7 +6,7 @@
 /*   By: noemi <noemi@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/13 19:00:00 by noemi             #+#    #+#             */
-/*   Updated: 2026/06/17 15:28:50 by noemi            ###   ########.fr       */
+/*   Updated: 2026/06/18 13:36:30 by noemi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 /* retourne la cle de priorite selon le scheduler (FIFO=arrivee, EDF=deadline) */
-static long	get_dongle_key(t_coder_data *coder)
+static long	get_priority(t_coder_data *coder)
 {
 	long	key;
 
@@ -41,13 +41,13 @@ static void	release_dongle(t_coder_data *coder, t_dongle_data *dongle)
 }
 
 /* attend son tour puis prend le dongle selon scheduler et cooldown */
-static void	acquire_dongle(t_coder_data *coder, t_dongle_data *dongle)
+static void	get_dongle(t_coder_data *coder, t_dongle_data *dongle)
 {
 	int	cooldown;
 
 	cooldown = coder->sim->params.dongle_cooldown;
 	pthread_mutex_lock(&dongle->mutex);
-	heap_push(&dongle->wait_queue, coder->id_number, get_dongle_key(coder));
+	heap_push(&dongle->wait_queue, coder->id_number, get_priority(coder));
 	while (!is_stopped(coder->sim) && (dongle->in_use
 		|| get_time_ms(coder->sim) < dongle->release_time + cooldown
 		|| heap_peek(&dongle->wait_queue).coder_id != coder->id_number))
@@ -65,13 +65,13 @@ static void	acquire_dongle(t_coder_data *coder, t_dongle_data *dongle)
 }
 
 /* un cycle complet : prend les 2 dongles, compile, debug, refactor */
-static void	do_cycle(t_coder_data *coder, t_dongle_data *first,
+static void	start_routine(t_coder_data *coder, t_dongle_data *first,
 	t_dongle_data *second)
 {
-	acquire_dongle(coder, first);
+	get_dongle(coder, first);
 	if (is_stopped(coder->sim))
 		return ;
-	acquire_dongle(coder, second);
+	get_dongle(coder, second);
 	if (is_stopped(coder->sim))
 	{
 		release_dongle(coder, first);
@@ -124,6 +124,6 @@ void	*coder_routine(void *arg)
 		second = coder->left_dongle;
 	}
 	while (!is_stopped(coder->sim))
-		do_cycle(coder, first, second);
+		start_routine(coder, first, second);
 	return (NULL);
 }
