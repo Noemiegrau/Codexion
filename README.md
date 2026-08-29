@@ -87,4 +87,4 @@ All 8 arguments are required. The program rejects anything invalid — negative 
 
 ### AI usage
 
-Claude (claude.ai and Claude Code) was used throughout this project for: talking through data structure design and catching missing fields early, and building a task breakdown to track progress across the implementation. All code and documentation in the repository was written and fully understood by the author.
+Claude (claude.ai and Claude Code) was used throughout this project for: talking through data structure design and catching missing fields early, and building a task breakdown to track progress across the implementation.
